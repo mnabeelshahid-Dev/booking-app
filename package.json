@@ -1,0 +1,17 @@
+{
+  "name": "ecommerce-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "yarn workspace @ecommerce/mobile dev",
+    "admin": "yarn workspace @ecommerce/admin dev",
+    "server": "yarn workspace @ecommerce/server dev",
+    "dev": "concurrently \"yarn mobile\" \"yarn admin\" \"yarn server\""
+  },
+  "devDependencies": {
+    "turbo": "^1.10.16",
+    "concurrently": "^8.2.2"
+  }
+}
