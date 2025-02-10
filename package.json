@@ -11,7 +11,10 @@
     "dev": "concurrently \"yarn mobile\" \"yarn admin\" \"yarn server\""
   },
   "devDependencies": {
-    "turbo": "^1.10.16",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "turbo": "^1.10.16"
+  },
+  "dependencies": {
+    "nodemailer": "^6.10.0"
   }
 }

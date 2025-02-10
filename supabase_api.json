@@ -1,0 +1,160 @@
+{
+    "info": {
+        "name": "Supabase API (Express Routes) Booking App",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"email\": \"testuser@example.com\", \"password\": \"your_password\" }"
+                },
+                "url": "{{baseURL}}/register"
+            },
+            "response": []
+        },
+        {
+            "name": "Login User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"email\": \"testuser@example.com\", \"password\": \"your_password\" }"
+                },
+                "url": "{{baseURL}}/login"
+            },
+            "response": []
+        },
+        {
+            "name": "Logout User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseURL}}/logout"
+            },
+            "response": []
+        },
+        {
+            "name": "Get User Profile",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseURL}}/get-profile"
+            },
+            "response": []
+        },
+        {
+            "name": "Forgot Password",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"email\": \"testuser@example.com\" }"
+                },
+                "url": "{{baseURL}}/forget-password"
+            },
+            "response": []
+        },
+        {
+            "name": "Reset Password",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"token\": \"your_reset_password_token\", \"password\": \"new_password\" }"
+                },
+                "url": "{{baseURL}}/reset-password"
+            },
+            "response": []
+        },
+        {
+            "name": "Send Login OTP",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"user\": { \"id\": 123, \"email\": \"user@example.com\" } }"
+                },
+                "url": "{{baseURL}}/login-otp"
+            },
+            "response": []
+        },
+        {
+            "name": "Resend Login OTP",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{ \"user\": { \"id\": 123, \"email\": \"user@example.com\" } }"
+                },
+                "url": "{{baseURL}}/resend-otp"
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "id": "baseURL",
+            "key": "baseURL",
+            "value": "http://localhost:5000"
+        },
+        {
+            "id": "token",
+            "key": "token",
+            "value": ""
+        }
+    ]
+}
