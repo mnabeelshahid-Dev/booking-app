@@ -1,10 +1,10 @@
 import { supabase } from '../config/supabase.js';
 
 // GET API to fetch all homes
-export const allHomes = async (req, res) => {
+export const allHotels = async (req, res) => {
     try {
         const { data, error } = await supabase
-            .from('homes')
+            .from('hotels')
             .select('*')
             .order('created_at', { ascending: true });
         if (error) {

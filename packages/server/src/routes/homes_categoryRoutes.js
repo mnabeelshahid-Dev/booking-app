@@ -1,12 +1,12 @@
 import express from 'express';
-import { allHomes } from '../controllers/homes_categoryController.js';
+import { allHotels } from '../controllers/homes_categoryController.js';
 
 
 
 const router = express.Router();
 
 // GET /all-homes
-router.get('/all-homes', allHomes)
+router.get('/all-hotels', allHotels)
 
 
 

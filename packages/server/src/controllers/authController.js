@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { supabase } from '../config/supabase.js';
+import { handleError } from '../utils/errorhandler.js';
 
 
 
@@ -13,10 +14,10 @@ export const register = async (req, res) => {
       throw new Error('Email and password are required.');
     }
     console.log(email, password);
-    
+
     const { data, error } = await supabase.auth.signUp({ email, password });
     console.log(data);
-    
+
 
     if (error) {
       if (error.status === 400) {
@@ -29,14 +30,7 @@ export const register = async (req, res) => {
     res.status(200).json({ message: 'User registered successfully', data });
 
   } catch (error) {
-    console.error('Registration Error:', error);
-    if (error.message === 'Email and password are required.') {
-      res.status(400).json({ error: error.message });
-    } else if (error.message.includes('already exists')) { // Check for email already exists error
-      res.status(400).json({ error: 'Email already exists.' });
-    } else {
-      res.status(500).json({ error: 'An error occurred during registration.' });
-    }
+    handleError(res, error, 'An error occurred during registration.');
   }
 };
 
@@ -44,69 +38,38 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) throw new Error('Email and password are required.');
 
-    // Basic input validation
-    if (!email || !password) {
-      throw new Error('Email and password are required.');
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.error('Login Error:', error);
-
-      if (error.message.includes('Invalid email or password')) {
-        // Handle specific error message
-        return res.status(401).json({ error: 'Invalid email or password.' });
-      } else {
-        return res.status(500).json({ error: 'An error occurred during login.' });
-      }
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
 
     res.status(200).json({ message: 'User logged in successfully', data });
-
   } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ error: 'An error occurred during login.' });
+    handleError(res, error, 'An error occurred during login.');
   }
 };
 
 // Logout
 export const logout = async (req, res) => {
-  const { headers } = req;
-
   try {
-    const { error } = await supabase.auth.signOut({ headers });
-
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
-
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    handleError(res, error, 'Internal server error');
   }
-}
+};
 
 // Get Profile 
 export const getProfile = async (req, res) => {
-  // const { headers } = req;   
   try {
     const { data, error } = await supabase.auth.getUser();
-    if (error) {
-      return res.status(401).json({ error: error.message });
-    }
-
+    if (error) throw error;
     res.json({ user: data.user });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    handleError(res, error, 'Internal server error');
   }
-}
+};
 
 // Protected Route (requires authentication)
 export const protectedData = async (req, res) => {
@@ -141,37 +104,16 @@ export const protectedData = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) throw new Error('Email is required.');
 
-    if (!email) {
-      throw new Error('Email is required.');
-    }
-    console.log('SUPABASE', supabase.auth);
-
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: 'https://example.com/update-password',
-    })
-    console.log('DATAA', data);
-
-
-    if (error) {
-      if (error.status === 400) {
-        throw new Error(error.message); // Handle specific 400 errors (e.g., email not found)
-      } else {
-        throw new Error(error.message);
-      }
-    }
+    });
+    if (error) throw error;
 
     res.status(200).json({ message: 'Password reset email sent.' });
-
   } catch (error) {
-    console.error('Forgot Password Error:', error);
-    if (error.message === 'Email is required.') {
-      res.status(400).json({ error: error.message });
-    } else if (error.message.includes('not found')) {
-      res.status(400).json({ error: 'Email not found.' });
-    } else {
-      res.status(500).json({ error: 'An error occurred while sending the password reset email.' });
-    }
+    handleError(res, error, 'An error occurred while sending the password reset email.');
   }
 };
 
@@ -179,25 +121,14 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
+    if (!token || !password) throw new Error('Token and password are required.');
 
-    if (!token || !password) {
-      return res.status(400).json({ error: 'Token and password are required.' });
-    }
-
-    const { data, error } = await supabase.auth.verifyOtp({
-      type: 'recovery', // Indicates it's a password recovery
-      token,
-      password,
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
+    const { error } = await supabase.auth.verifyOtp({ type: 'recovery', token, password });
+    if (error) throw error;
 
     res.status(200).json({ message: 'Password reset successfully.' });
   } catch (error) {
-    console.error('Reset Password Error:', error);
-    res.status(500).json({ error: 'An error occurred while resetting the password.' });
+    handleError(res, error, 'An error occurred while resetting the password.');
   }
 };
 
@@ -229,13 +160,11 @@ export const sendLoginOtp = async (req, res) => {
     res.status(200).json({ message: 'OTP sent to your email.' });
 
   } catch (error) {
-    console.error('OTP Sending Error:', error);
-    res.status(500).json({ error: 'An error occurred while sending the OTP.' });
+    handleError(res, error, 'An error occurred while sending the OTP.');
   }
 };
 
 async function sendEmail(to, subject, text) {
-
   // Configure your email service credentials (replace with your actual values)
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -265,7 +194,7 @@ async function sendEmail(to, subject, text) {
 // Resend Otp
 export const resendLoginOtp = async (req, res) => {
   try {
-    const { user } = req.body; 
+    const { user } = req.body;
 
     if (!user || !user.email) {
       return res.status(400).json({ error: 'Missing user or email in request body.' });
@@ -319,7 +248,6 @@ export const resendLoginOtp = async (req, res) => {
 
     res.status(200).json({ message: 'OTP resent to your email.' });
   } catch (error) {
-    console.error('Resend OTP Error:', error);
-    res.status(500).json({ error: 'Failed to resend OTP. Please try again later.' });
+    handleError(res, error, 'Failed to resend OTP. Please try again later.');
   }
 };
