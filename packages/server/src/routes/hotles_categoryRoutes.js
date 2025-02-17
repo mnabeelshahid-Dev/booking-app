@@ -1,15 +1,16 @@
 import express from 'express';
-import { allHotels, createHotel, getHotelDetail, updateHotel } from '../controllers/hotles_categoryController.js';
+import { allHotels, createHotel, deleteHotel, getHotelDetail, updateHotel } from '../controllers/hotles_categoryController.js';
 
 
 
 const router = express.Router();
 
-// GET /all-homes
+// GET /all-hotels
 router.get('/all-hotels', allHotels);
-router.post('create-hotel', createHotel);
-router.get('hotel-details/:id', getHotelDetail);
-router.put('update-hotel/:id', updateHotel);
+router.post('/hotels/insert-hotel', createHotel);
+router.get('/hotels/hotel-details/:id', getHotelDetail);
+router.put('/hotels/update-hotel/:id', updateHotel);
+router.delete('/hotels/delete-hotel/:id', deleteHotel);
 
 
 

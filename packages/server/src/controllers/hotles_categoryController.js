@@ -6,7 +6,7 @@ export const allHotels = async (req, res) => {
         const { page = 1, limit = 10, location, min_price, max_price, rating } = req.query;
         const offset = (page - 1) * limit;
 
-        let query = await supabase.from("hotels").select("*", { count: "exact" });
+        let query = supabase.from("hotels").select("*", { count: "exact" });
 
         if (location) query = query.ilike("location", `%${location}%`);
         if (min_price) query = query.gte("price", parseFloat(min_price));
@@ -15,7 +15,7 @@ export const allHotels = async (req, res) => {
 
         query = query.range(offset, offset + limit - 1);
 
-        const { data, error, count } = query;
+        const { data, error, count } = await query;
         if (error) throw error;
 
         res.status(200).json({
@@ -33,23 +33,28 @@ export const allHotels = async (req, res) => {
 // insert hotles
 export const createHotel = async (req, res) => {
     try {
-        const { name, description, location, price, image_urls } = req.body;
+        const { title, description, location, price, image_urls, number_of_beds, number_of_baths, area, whatsapp_link } = req.body;
+
+        console.log(req.body);
 
         // Validate required fields
-        if (!name || !location || !price) {
-            return res.status(400).json({ error: "Name, location, and price are required" });
+        if (!title || !location || !price || !number_of_beds || !number_of_baths) {
+            return res.status(400).json({ error: "title, location, price, number_of_beds, and number_of_baths are required" });
         }
 
         const { data, error } = await supabase.from("hotels").insert([
-            { name, description, location, price, image_urls },
+            { title, description, location, price, image_urls, number_of_beds, number_of_baths, area, whatsapp_link },
         ]);
+
         if (error) throw error;
+
         res.status(201).json({ message: "Hotel added successfully", data });
     } catch (error) {
         console.error("Error adding hotel:", error);
         res.status(500).json({ error: "Failed to add hotel" });
     }
-}
+};
+
 
 // get a single hotel by  ID
 export const getHotelDetail = async (req, res) => {
@@ -69,25 +74,39 @@ export const getHotelDetail = async (req, res) => {
 export const updateHotel = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, location, price, image_urls } = req.body;
+        const { title, description, location, price, image_urls, number_of_beds, number_of_baths, area, whatsapp_link } = req.body;
+
+        console.log("Request received:", req.body);
 
         const { data, error } = await supabase
             .from("hotels")
-            .update({ name, description, location, price, image_urls })
-            .eq("id", id);
+            .update({ title, description, location, price, image_urls, number_of_beds, number_of_baths, area, whatsapp_link })
+            .eq("id", id)
+            .select();
 
-        if (error || !data.length) return res.status(404).json({ error: "Hotel not found or not updated" });
+        console.log("Updated Data:", data);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: "Hotel not found or not updated" });
+        }
 
         res.status(200).json({ message: "Hotel updated successfully", data });
     } catch (error) {
         console.error("Error updating hotel:", error);
         res.status(500).json({ error: "Failed to update hotel" });
     }
-}
+};
+
 
 export const deleteHotel = async (req, res) => {
+      console.log(req.params);
+      
     try {
         const { id } = req.params;
+        console.log(id);
+        
         const { error } = await supabase.from("hotels").delete().eq("id", id);
 
         if (error) return res.status(404).json({ error: "Hotel not found" });
